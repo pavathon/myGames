@@ -1,4 +1,4 @@
-package Java.desktop;
+package desktop;
 
 import Screens.MainGame;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;

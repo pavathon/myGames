@@ -10,8 +10,6 @@ buildscript {
         google()
     }
     dependencies {
-        
-
     }
 }
 
@@ -53,11 +51,12 @@ project(":desktop") {
 
 project(":core") {
     apply plugin: "java-library"
-
+    apply plugin: "scala"
 
     dependencies {
         api "com.badlogicgames.gdx:gdx:$gdxVersion"
         api "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
-        
+        compile 'org.scala-lang:scala-library:2.11.12'
     }
+
 }
