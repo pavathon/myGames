@@ -1,5 +1,6 @@
 package Screens;
 
+import Screens.Pokemon.IntroductionScreen;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;

@@ -2,6 +2,7 @@ package Screens;
 
 import PokemonInfo.Player;
 import PokemonInfo.Pokemon;
+import Screens.Pokemon.PokemonScreen;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
