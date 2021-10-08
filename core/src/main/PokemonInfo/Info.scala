@@ -10,10 +10,10 @@ case object Info {
 
   val starterPokemon: Map[String, Pokemon] = Map(
     "Charmander" ->
-      Pokemon("Charmander", Type.FIRE, Seq(Some(allMoves("Ember")), Some(allMoves("Tackle")), None, None)),
+      Pokemon("Charmander", Type.FIRE, Seq(Some(allMoves("Tackle")), Some(allMoves("Ember")), None, None)),
     "Squirtle" ->
-      Pokemon("Squirtle", Type.WATER, Seq(Some(allMoves("Bubblebeam")), Some(allMoves("Tackle")), None, None)),
+      Pokemon("Squirtle", Type.WATER, Seq(Some(allMoves("Tackle")), Some(allMoves("Bubblebeam")), None, None)),
     "Bulbasaur" ->
-      Pokemon("Bulbasaur", Type.GRASS, Seq(Some(allMoves("Razor Leaf")), Some(allMoves("Tackle")), None, None))
+      Pokemon("Bulbasaur", Type.GRASS, Seq(Some(allMoves("Tackle")), Some(allMoves("Razor Leaf")), None, None))
   )
 }

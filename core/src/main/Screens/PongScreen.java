@@ -26,12 +26,12 @@ public class PongScreen extends ScreenAdapter
 	private Ball ball;				// Ball used in the game
 	private int player1Score;		// Score for player1
 	private int player2Score;		// Score for player2
-	private final Sound ballSound;      // Sound the ball makes when colliding with objects
+	//private final Sound ballSound;      // Sound the ball makes when colliding with objects
 
 	public PongScreen(MainGame game)
 	{
 		this.game = game;
-		ballSound = Gdx.audio.newSound(Gdx.files.internal("sounds/plop.ogg"));
+		//ballSound = Gdx.audio.newSound(Gdx.files.internal("sounds/plop.ogg"));
 	}
 
 	@Override
@@ -96,8 +96,8 @@ public class PongScreen extends ScreenAdapter
 			game.setScreen((game.gameOverScreen));
 		}
 
-		if (ball.overlaps(player1.getBlock())) ballSound.play();
-		else if (ball.overlaps(player2.getBlock())) ballSound.play();
+		//if (ball.overlaps(player1.getBlock())) ballSound.play();
+		//else if (ball.overlaps(player2.getBlock())) ballSound.play();
 
 		// Move player blocks
 		if (Gdx.input.isKeyPressed(Input.Keys.W))
@@ -122,6 +122,6 @@ public class PongScreen extends ScreenAdapter
 	@Override
 	public void dispose()
 	{
-		ballSound.dispose();
+		//ballSound.dispose();
 	}
 }
