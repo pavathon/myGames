@@ -1,7 +1,5 @@
 package PokemonInfo;
 
-import PokemonInfo.Pokemon;
-
 import java.util.ArrayList;
 
 public class Player

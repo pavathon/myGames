@@ -44,7 +44,7 @@ public class StatsScreen extends ScreenAdapter
         for (Pokemon pokemon : player.getPokemon()) {
             if (pokemon == null) continue;
             game.font.draw(game.batch, "Name: " + pokemon.name(), Gdx.graphics.getWidth() * .1f, Gdx.graphics.getHeight() * .85f);
-            game.font.draw(game.batch, "Type: " + pokemon.moveType().toString(), Gdx.graphics.getWidth() * .1f, Gdx.graphics.getHeight() * .65f);
+            game.font.draw(game.batch, "Type: " + pokemon.pokemonType().toString(), Gdx.graphics.getWidth() * .1f, Gdx.graphics.getHeight() * .65f);
             game.font.draw(game.batch, "Moves: " + pokemon.moveSetToString(), Gdx.graphics.getWidth() * .1f, Gdx.graphics.getHeight() * .6f);
         }
         game.batch.end();
