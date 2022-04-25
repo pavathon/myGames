@@ -9,14 +9,12 @@ import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 
 import java.util.List;
@@ -28,15 +26,13 @@ public class BattleScreen extends ScreenAdapter
 
     private Stage stage;
 
-    public BattleScreen(MainGame game, PokemonScreen pokemonScreen)
-    {
+    public BattleScreen(MainGame game, PokemonScreen pokemonScreen) {
         this.mainGame = game;
         this.pokemonScreen = pokemonScreen;
     }
 
     @Override
-    public void show()
-    {
+    public void show() {
         Gdx.input.setInputProcessor(new InputAdapter() {
             @Override
             public boolean keyDown(int keyCode) {
@@ -45,38 +41,51 @@ public class BattleScreen extends ScreenAdapter
             }
         });
 
-        createButtons();
+        createBattle();
     }
 
     @Override
-    public void render(float delta)
-    {
+    public void render(float delta) {
         Gdx.gl.glClearColor(255, 255, 255, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         stage.draw();
     }
 
-    private void createButtons() {
+    private void createBattle() {
         stage = new Stage();
         Gdx.input.setInputProcessor(stage);
         Skin skin = new Skin();
         TextureAtlas buttonAtlas = new TextureAtlas("gdx-skins/default/skin/uiskin.atlas");
         skin.addRegions(buttonAtlas);
 
+        int minWidth = 300;
+        int minHeight = 100;
+
         // Style of the health bar
         ProgressBar.ProgressBarStyle healthBarStyle = new ProgressBar.ProgressBarStyle();
         healthBarStyle.background = skin.getDrawable("default-slider");
         healthBarStyle.disabledBackground = skin.getDrawable("default-slider");
-        healthBarStyle.background.setMinWidth(300);
-        healthBarStyle.background.setMinHeight(100);
-        healthBarStyle.disabledBackground.setMinWidth(300);
-        healthBarStyle.disabledBackground.setMinHeight(100);
+        healthBarStyle.background.setMinWidth(minWidth);
+        healthBarStyle.background.setMinHeight(minHeight);
+        healthBarStyle.disabledBackground.setMinWidth(minWidth);
+        healthBarStyle.disabledBackground.setMinHeight(minHeight);
 
-        // Health Bar
-        ProgressBar healthBar = new ProgressBar(0, 100, 1f, false, healthBarStyle);
-        healthBar.setSize(300, 100);
-        healthBar.setPosition(1000, 1150);
+        // Enemy Health Bar
+        ProgressBar enemyHealthBar = new ProgressBar(0, 100, 1f, false, healthBarStyle);
+        enemyHealthBar.setSize(minWidth, minHeight);
+        enemyHealthBar.setPosition(MainGame.WORLD_WIDTH - enemyHealthBar.getWidth() - 50, MainGame.WORLD_HEIGHT - 150);
+        enemyHealthBar.setColor(Color.GREEN);
+
+        // Ally Health Bar
+        ProgressBar allyHealthBar = new ProgressBar(0, 100, 1f, false, healthBarStyle);
+        allyHealthBar.setSize(minWidth, minHeight);
+        allyHealthBar.setPosition(50, MainGame.WORLD_HEIGHT - 150);
+        allyHealthBar.setColor(Color.GREEN);
+
+        Image allyImg = new Image(new Texture(Gdx.files.internal("gigachad.png")));
+        allyImg.setPosition(50, 600);
+        allyImg.setScale(0.5f);
 
         List<String> moveNames = Player.getPlayerInstance().getPokemon().get(0).getMoveNames();
 
@@ -84,64 +93,46 @@ public class BattleScreen extends ScreenAdapter
                 Gdx.files.internal("core/assets/gdx-skins/default/raw/default.png"), false);
         font.getData().setScale(3f);
 
-        TextButton.TextButtonStyle move1ButtonStyle = new TextButton.TextButtonStyle();
-        move1ButtonStyle.font = font;
-        move1ButtonStyle.up = skin.getDrawable("default-select");
-        move1ButtonStyle.down = skin.getDrawable("default-select-selection");
-        final TextButton move1Button = new TextButton(moveNames.get(0), move1ButtonStyle);
-        move1Button.addListener(new ChangeListener() {
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-                healthBar.setWidth(healthBar.getWidth() - 20);
-                setColorStatus(healthBar);
-            }
-        });
-
-        TextButton.TextButtonStyle move2ButtonStyle = new TextButton.TextButtonStyle();
-        move2ButtonStyle.font = font;
-        move2ButtonStyle.up = skin.getDrawable("default-select");
-        move2ButtonStyle.down = skin.getDrawable("default-select-selection");
-        final TextButton move2Button = new TextButton(moveNames.get(1), move2ButtonStyle);
-
-        TextButton.TextButtonStyle move3ButtonStyle = new TextButton.TextButtonStyle();
-        move3ButtonStyle.font = font;
-        move3ButtonStyle.up = skin.getDrawable("default-select");
-        move3ButtonStyle.down = skin.getDrawable("default-select-selection");
-        final TextButton move3Button = new TextButton(moveNames.get(2), move3ButtonStyle);
-
-        TextButton.TextButtonStyle move4ButtonStyle = new TextButton.TextButtonStyle();
-        move4ButtonStyle.font = font;
-        move4ButtonStyle.up = skin.getDrawable("default-select");
-        move4ButtonStyle.down = skin.getDrawable("default-select-selection");
-        final TextButton move4Button = new TextButton(moveNames.get(3), move4ButtonStyle);
-        move4Button.addListener(new ChangeListener() {
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-
-            }
-        });
+        TextButton[] moveButtons = new TextButton[4];
+        for (int i = 0; i < 4; i++) {
+            TextButton.TextButtonStyle moveButtonStyle = new TextButton.TextButtonStyle();
+            moveButtonStyle.font = font;
+            moveButtonStyle.up = skin.getDrawable("default-select");
+            final TextButton moveButton = new TextButton(moveNames.get(i), moveButtonStyle);
+            if (!moveNames.get(i).equals("-")) moveButtonStyle.down = skin.getDrawable("default-select-selection");
+            else moveButton.setDisabled(true);
+            int finalI = i;
+            moveButton.addListener(new ChangeListener() {
+                @Override
+                public void changed(ChangeEvent event, Actor actor) {
+                    enemyHealthBar.setWidth(enemyHealthBar.getWidth() - Info.getDamage(moveNames.get(finalI)));
+                    setColorStatus(enemyHealthBar);
+                }
+            });
+            moveButtons[i] = moveButton;
+        }
 
         Table table = new Table();
-        table.add(move1Button).expand().fill();
-        table.add(move2Button).expand().fill();
+        table.add(moveButtons[0]).expand().fill();
+        table.add(moveButtons[1]).expand().fill();
         table.row();
-        table.add(move3Button).expand().fill();
-        table.add(move4Button).expand().fill();
-        table.setSize(MainGame.WORLD_WIDTH, MainGame.WORLD_HEIGHT / 2);
+        table.add(moveButtons[2]).expand().fill();
+        table.add(moveButtons[3]).expand().fill();
+        table.setSize(MainGame.WORLD_WIDTH, MainGame.WORLD_HEIGHT / 3);
 
         stage.addActor(table);
-        stage.addActor(healthBar);
+        stage.addActor(enemyHealthBar);
+        stage.addActor(allyHealthBar);
+        stage.addActor(allyImg);
     }
 
     @Override
-    public void hide()
-    {
+    public void hide() {
         Gdx.input.setInputProcessor(null);
     }
 
     @Override
-    public void dispose()
-    {
+    public void dispose() {
         stage.dispose();
     }
 
