@@ -17,6 +17,11 @@ case object Info {
       Pokemon("Bulbasaur", Type.GRASS, Seq(Some(allMoves("Tackle")), Some(allMoves("Razor Leaf")), None, None))
   )
 
+  lazy val enemyPokemon: List[Pokemon] = List(
+    Pokemon("Rattata", Type.NORMAL, Seq(Some(allMoves("Tackle")), None, None, None)),
+    Pokemon("Bidoof", Type.NORMAL, Seq(Some(allMoves("Tackle")), None, None, None))
+  )
+
   lazy val strengths: Map[Type, Set[Type]] = Map(
     Type.NORMAL   -> Set.empty,
     Type.FIRE     -> Set(Type.GRASS, Type.ICE, Type.BUG, Type.STEEL),

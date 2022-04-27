@@ -59,7 +59,11 @@ public class BattleScreen extends ScreenAdapter
         TextureAtlas buttonAtlas = new TextureAtlas("gdx-skins/default/skin/uiskin.atlas");
         skin.addRegions(buttonAtlas);
 
-        int minWidth = 300;
+        BitmapFont font = new BitmapFont(Gdx.files.internal("core/assets/gdx-skins/sgx/skin/font-export.fnt"),
+                Gdx.files.internal("core/assets/gdx-skins/sgx/raw/font-export.png"), false);
+        font.getData().setScale(3f);
+
+        int minWidth = 500;
         int minHeight = 100;
 
         // Style of the health bar
@@ -83,15 +87,17 @@ public class BattleScreen extends ScreenAdapter
         allyHealthBar.setPosition(50, MainGame.WORLD_HEIGHT - 150);
         allyHealthBar.setColor(Color.GREEN);
 
+        Label.LabelStyle nameStyle = new Label.LabelStyle(font, Color.BLACK);
+        Label allyName = new Label("Charmander", nameStyle);
+        allyName.setPosition(allyHealthBar.getX(), allyHealthBar.getY() - allyHealthBar.getHeight());
+        Label enemyName = new Label("Enemy", nameStyle);
+        enemyName.setPosition(enemyHealthBar.getX(), enemyHealthBar.getY() - enemyHealthBar.getHeight());
+
         Image allyImg = new Image(new Texture(Gdx.files.internal("gigachad.png")));
         allyImg.setPosition(50, 600);
         allyImg.setScale(0.5f);
 
         List<String> moveNames = Player.getPlayerInstance().getPokemon().get(0).getMoveNames();
-
-        BitmapFont font = new BitmapFont(Gdx.files.internal("core/assets/gdx-skins/default/skin/default.fnt"),
-                Gdx.files.internal("core/assets/gdx-skins/default/raw/default.png"), false);
-        font.getData().setScale(3f);
 
         TextButton[] moveButtons = new TextButton[4];
         for (int i = 0; i < 4; i++) {
@@ -122,8 +128,10 @@ public class BattleScreen extends ScreenAdapter
 
         stage.addActor(table);
         stage.addActor(enemyHealthBar);
+        stage.addActor(enemyName);
         stage.addActor(allyHealthBar);
         stage.addActor(allyImg);
+        stage.addActor(allyName);
     }
 
     @Override
