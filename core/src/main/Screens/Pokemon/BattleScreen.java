@@ -2,6 +2,7 @@ package Screens.Pokemon;
 
 import PokemonInfo.Info;
 import PokemonInfo.Player;
+import PokemonInfo.Pokemon;
 import Screens.MainGame;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -17,10 +18,10 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class BattleScreen extends ScreenAdapter
-{
+public class BattleScreen extends ScreenAdapter {
     private final MainGame mainGame;
     private final PokemonScreen pokemonScreen;
 
@@ -55,18 +56,66 @@ public class BattleScreen extends ScreenAdapter
     private void createBattle() {
         stage = new Stage();
         Gdx.input.setInputProcessor(stage);
-        Skin skin = new Skin();
-        TextureAtlas buttonAtlas = new TextureAtlas("gdx-skins/default/skin/uiskin.atlas");
-        skin.addRegions(buttonAtlas);
 
-        BitmapFont font = new BitmapFont(Gdx.files.internal("core/assets/gdx-skins/sgx/skin/font-export.fnt"),
-                Gdx.files.internal("core/assets/gdx-skins/sgx/raw/font-export.png"), false);
-        font.getData().setScale(3f);
+        ArrayList<Pokemon> playerPokemon = Player.getPlayerInstance().getPokemon();
+
+        Skin skin = createSkin();
+        BitmapFont font = createFont();
 
         int minWidth = 500;
         int minHeight = 100;
 
-        // Style of the health bar
+        ProgressBar.ProgressBarStyle healthBarStyle = createHealthBarStyle(skin, minWidth, minHeight);
+        ProgressBar allyHealthBar = createHealthBar(healthBarStyle, minWidth, minHeight);
+        allyHealthBar.setPosition(50, MainGame.WORLD_HEIGHT - 150);
+        ProgressBar enemyHealthBar = createHealthBar(healthBarStyle, minWidth, minHeight);
+        enemyHealthBar.setPosition(MainGame.WORLD_WIDTH - enemyHealthBar.getWidth() - 50, MainGame.WORLD_HEIGHT - 150);
+
+        Label.LabelStyle nameLabelStyle = createNameLabelStyle(font);
+        Label allyNameLabel = createNameLabel(playerPokemon.get(0).name(), nameLabelStyle, allyHealthBar);
+        Label enemyNameLabel = createNameLabel("Rattata", nameLabelStyle, enemyHealthBar);
+
+        Image allyPokemonImage = createAllyPokemonImage();
+
+        List<String> moveNames = playerPokemon.get(0).getMoveNames();
+
+        TextButton[] moveButtons = createMoveButtons(font, skin, moveNames, enemyHealthBar);
+
+        Table moveButtonsTable = createMoveButtonsTable(moveButtons);
+
+        stage.addActor(moveButtonsTable);
+        stage.addActor(enemyHealthBar);
+        stage.addActor(enemyNameLabel);
+        stage.addActor(allyHealthBar);
+        stage.addActor(allyPokemonImage);
+        stage.addActor(allyNameLabel);
+    }
+
+    @Override
+    public void hide() {
+        Gdx.input.setInputProcessor(null);
+    }
+
+    @Override
+    public void dispose() {
+        stage.dispose();
+    }
+
+    private Skin createSkin() {
+        Skin skin = new Skin();
+        TextureAtlas buttonAtlas = new TextureAtlas("gdx-skins/default/skin/uiskin.atlas");
+        skin.addRegions(buttonAtlas);
+        return skin;
+    }
+
+    private BitmapFont createFont() {
+        BitmapFont font = new BitmapFont(Gdx.files.internal("core/assets/gdx-skins/sgx/skin/font-export.fnt"),
+                Gdx.files.internal("core/assets/gdx-skins/sgx/raw/font-export.png"), false);
+        font.getData().setScale(3f);
+        return font;
+    }
+
+    private ProgressBar.ProgressBarStyle createHealthBarStyle(Skin skin, int minWidth, int minHeight) {
         ProgressBar.ProgressBarStyle healthBarStyle = new ProgressBar.ProgressBarStyle();
         healthBarStyle.background = skin.getDrawable("default-slider");
         healthBarStyle.disabledBackground = skin.getDrawable("default-slider");
@@ -74,31 +123,43 @@ public class BattleScreen extends ScreenAdapter
         healthBarStyle.background.setMinHeight(minHeight);
         healthBarStyle.disabledBackground.setMinWidth(minWidth);
         healthBarStyle.disabledBackground.setMinHeight(minHeight);
+        return healthBarStyle;
+    }
 
-        // Enemy Health Bar
-        ProgressBar enemyHealthBar = new ProgressBar(0, 100, 1f, false, healthBarStyle);
-        enemyHealthBar.setSize(minWidth, minHeight);
-        enemyHealthBar.setPosition(MainGame.WORLD_WIDTH - enemyHealthBar.getWidth() - 50, MainGame.WORLD_HEIGHT - 150);
-        enemyHealthBar.setColor(Color.GREEN);
+    private ProgressBar createHealthBar(
+            ProgressBar.ProgressBarStyle healthBarStyle,
+            int minWidth,
+            int minHeight
+    ) {
+        ProgressBar healthBar = new ProgressBar(0, 100, 1f, false, healthBarStyle);
+        healthBar.setSize(minWidth, minHeight);
+        healthBar.setColor(Color.GREEN);
+        return healthBar;
+    }
 
-        // Ally Health Bar
-        ProgressBar allyHealthBar = new ProgressBar(0, 100, 1f, false, healthBarStyle);
-        allyHealthBar.setSize(minWidth, minHeight);
-        allyHealthBar.setPosition(50, MainGame.WORLD_HEIGHT - 150);
-        allyHealthBar.setColor(Color.GREEN);
+    private Label.LabelStyle createNameLabelStyle(BitmapFont font) {
+        return new Label.LabelStyle(font, Color.BLACK);
+    }
 
-        Label.LabelStyle nameStyle = new Label.LabelStyle(font, Color.BLACK);
-        Label allyName = new Label("Charmander", nameStyle);
-        allyName.setPosition(allyHealthBar.getX(), allyHealthBar.getY() - allyHealthBar.getHeight());
-        Label enemyName = new Label("Enemy", nameStyle);
-        enemyName.setPosition(enemyHealthBar.getX(), enemyHealthBar.getY() - enemyHealthBar.getHeight());
+    private Label createNameLabel(String pokemonName, Label.LabelStyle nameLabelStyle, ProgressBar healthBar) {
+        Label pokemonNameLabel = new Label(pokemonName, nameLabelStyle);
+        pokemonNameLabel.setPosition(healthBar.getX(), healthBar.getY() - healthBar.getHeight());
+        return pokemonNameLabel;
+    }
 
+    private Image createAllyPokemonImage() {
         Image allyImg = new Image(new Texture(Gdx.files.internal("gigachad.png")));
         allyImg.setPosition(50, 600);
         allyImg.setScale(0.5f);
+        return allyImg;
+    }
 
-        List<String> moveNames = Player.getPlayerInstance().getPokemon().get(0).getMoveNames();
-
+    private TextButton[] createMoveButtons(
+            BitmapFont font,
+            Skin skin,
+            List<String> moveNames,
+            ProgressBar enemyHealthBar
+    ) {
         TextButton[] moveButtons = new TextButton[4];
         for (int i = 0; i < 4; i++) {
             TextButton.TextButtonStyle moveButtonStyle = new TextButton.TextButtonStyle();
@@ -117,7 +178,10 @@ public class BattleScreen extends ScreenAdapter
             });
             moveButtons[i] = moveButton;
         }
+        return moveButtons;
+    }
 
+    private Table createMoveButtonsTable(TextButton[] moveButtons) {
         Table table = new Table();
         table.add(moveButtons[0]).expand().fill();
         table.add(moveButtons[1]).expand().fill();
@@ -125,23 +189,7 @@ public class BattleScreen extends ScreenAdapter
         table.add(moveButtons[2]).expand().fill();
         table.add(moveButtons[3]).expand().fill();
         table.setSize(MainGame.WORLD_WIDTH, MainGame.WORLD_HEIGHT / 3);
-
-        stage.addActor(table);
-        stage.addActor(enemyHealthBar);
-        stage.addActor(enemyName);
-        stage.addActor(allyHealthBar);
-        stage.addActor(allyImg);
-        stage.addActor(allyName);
-    }
-
-    @Override
-    public void hide() {
-        Gdx.input.setInputProcessor(null);
-    }
-
-    @Override
-    public void dispose() {
-        stage.dispose();
+        return table;
     }
 
     private void setColorStatus(ProgressBar healthBar) {
