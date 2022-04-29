@@ -1,6 +1,8 @@
 package PokemonInfo
 
-case object Info {
+import scala.util.Random
+
+object Info {
   lazy val allMoves: Map[String, Move] = Map(
     "Tackle"     -> Move("Tackle", Type.NORMAL, 10),
     "Ember"      -> Move("Ember", Type.FIRE, 20),
@@ -18,8 +20,9 @@ case object Info {
   )
 
   lazy val enemyPokemon: List[Pokemon] = List(
-    Pokemon("Rattata", Type.NORMAL, Seq(Some(allMoves("Tackle")), None, None, None)),
-    Pokemon("Bidoof", Type.NORMAL, Seq(Some(allMoves("Tackle")), None, None, None))
+    Pokemon("Rattata", Type.GRASS, Seq(Some(allMoves("Tackle")), None, None, None)),
+    Pokemon("Bidoof", Type.GRASS, Seq(Some(allMoves("Tackle")), None, None, None)),
+    Pokemon("Starly", Type.GRASS, Seq(Some(allMoves("Tackle")), None, None, None))
   )
 
   lazy val strengths: Map[Type, Set[Type]] = Map(
@@ -83,13 +86,29 @@ case object Info {
     Type.STEEL    -> Set.empty
   )
 
-  def getEffectiveness(attacker: Pokemon, defender: Pokemon): Float = {
-    if (strengths(attacker.pokemonType).contains(defender.pokemonType)) 2.0f
-    else if (weaknesses(attacker.pokemonType).contains(defender.pokemonType)) 0.5f
-    else if (noEffect(attacker.pokemonType).contains(defender.pokemonType)) 0f
-    else 1f
+  def getEffectiveDamage(attackerMoveName: String, defender: Pokemon): (Float, String) = {
+    val attackerMove: Move = allMoves(attackerMoveName)
+
+    val effectiveness: Float =
+      if (strengths(attackerMove.moveType).contains(defender.pokemonType)) 2.0f
+      else if (weaknesses(attackerMove.moveType).contains(defender.pokemonType)) 0.5f
+      else if (noEffect(attackerMove.moveType).contains(defender.pokemonType)) 0f
+      else 1f
+
+    (attackerMove.damage * effectiveness, s"You used $attackerMoveName! ${getEffectiveString(effectiveness)}")
   }
 
-  def getDamage(moveName: String): Int = allMoves(moveName).damage
+  private def getEffectiveString(effectiveness: Float): String = {
+    effectiveness match {
+      case 2.0f => s"It's super effective!"
+      case 1f => s"It's normally effective."
+      case 0.5f => s"It's not very effective."
+      case 0f => s"It did nothing."
+    }
+  }
 
+  def getRandomEnemyPokemon: Pokemon = {
+    val index: Int = Random.nextInt(enemyPokemon.length)
+    enemyPokemon(index)
+  }
 }

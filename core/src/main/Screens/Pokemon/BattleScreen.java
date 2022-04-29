@@ -17,6 +17,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import scala.Tuple2;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,9 +59,10 @@ public class BattleScreen extends ScreenAdapter {
         Gdx.input.setInputProcessor(stage);
 
         ArrayList<Pokemon> playerPokemon = Player.getPlayerInstance().getPokemon();
+        Pokemon enemyPokemon = Info.getRandomEnemyPokemon();
 
         Skin skin = createSkin();
-        BitmapFont font = createFont();
+        BitmapFont font = createFont(3f);
 
         int minWidth = 500;
         int minHeight = 100;
@@ -73,17 +75,23 @@ public class BattleScreen extends ScreenAdapter {
 
         Label.LabelStyle nameLabelStyle = createNameLabelStyle(font);
         Label allyNameLabel = createNameLabel(playerPokemon.get(0).name(), nameLabelStyle, allyHealthBar);
-        Label enemyNameLabel = createNameLabel("Rattata", nameLabelStyle, enemyHealthBar);
+        Label enemyNameLabel = createNameLabel(enemyPokemon.name(), nameLabelStyle, enemyHealthBar);
 
         Image allyPokemonImage = createAllyPokemonImage();
 
+        Label battleDescriptionLabel = createBattleDescriptionLabel();
+
         List<String> moveNames = playerPokemon.get(0).getMoveNames();
 
-        TextButton[] moveButtons = createMoveButtons(font, skin, moveNames, enemyHealthBar);
+        TextButton[] moveButtons =
+            createMoveButtons(font, skin, moveNames, enemyHealthBar, enemyPokemon, battleDescriptionLabel, minWidth);
 
         Table moveButtonsTable = createMoveButtonsTable(moveButtons);
 
+        battleDescriptionLabel.setPosition(moveButtonsTable.getX(), moveButtonsTable.getY() + moveButtonsTable.getHeight() + 10);
+
         stage.addActor(moveButtonsTable);
+        stage.addActor(battleDescriptionLabel);
         stage.addActor(enemyHealthBar);
         stage.addActor(enemyNameLabel);
         stage.addActor(allyHealthBar);
@@ -108,10 +116,10 @@ public class BattleScreen extends ScreenAdapter {
         return skin;
     }
 
-    private BitmapFont createFont() {
+    private BitmapFont createFont(float scale) {
         BitmapFont font = new BitmapFont(Gdx.files.internal("core/assets/gdx-skins/sgx/skin/font-export.fnt"),
                 Gdx.files.internal("core/assets/gdx-skins/sgx/raw/font-export.png"), false);
-        font.getData().setScale(3f);
+        font.getData().setScale(scale);
         return font;
     }
 
@@ -147,6 +155,12 @@ public class BattleScreen extends ScreenAdapter {
         return pokemonNameLabel;
     }
 
+    private Label createBattleDescriptionLabel() {
+        BitmapFont font = createFont(2f);
+        Label.LabelStyle labelStyle = new Label.LabelStyle(font, Color.BLACK);
+        return new Label("It's your turn!",labelStyle);
+    }
+
     private Image createAllyPokemonImage() {
         Image allyImg = new Image(new Texture(Gdx.files.internal("gigachad.png")));
         allyImg.setPosition(50, 600);
@@ -158,7 +172,10 @@ public class BattleScreen extends ScreenAdapter {
             BitmapFont font,
             Skin skin,
             List<String> moveNames,
-            ProgressBar enemyHealthBar
+            ProgressBar enemyHealthBar,
+            Pokemon enemy,
+            Label battleDescriptionLabel,
+            float minWidth
     ) {
         TextButton[] moveButtons = new TextButton[4];
         for (int i = 0; i < 4; i++) {
@@ -172,8 +189,11 @@ public class BattleScreen extends ScreenAdapter {
             moveButton.addListener(new ChangeListener() {
                 @Override
                 public void changed(ChangeEvent event, Actor actor) {
-                    enemyHealthBar.setWidth(enemyHealthBar.getWidth() - Info.getDamage(moveNames.get(finalI)));
+                    Tuple2<Object, String> effective = Info.getEffectiveDamage(moveNames.get(finalI), enemy);
+                    float dmg = (float) effective._1 * (minWidth / 100);
+                    enemyHealthBar.setWidth(enemyHealthBar.getWidth() - dmg);
                     setColorStatus(enemyHealthBar);
+                    battleDescriptionLabel.setText(effective._2);
                 }
             });
             moveButtons[i] = moveButton;
@@ -196,4 +216,5 @@ public class BattleScreen extends ScreenAdapter {
         if (healthBar.getWidth() <= 90) healthBar.setColor(Color.RED);
         else healthBar.setColor(Color.GREEN);
     }
+
 }
