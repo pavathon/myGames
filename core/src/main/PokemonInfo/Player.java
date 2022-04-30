@@ -14,19 +14,19 @@ public class Player
 
     private static final int SIZE = 6;
 
-    private final ArrayList<Pokemon> pokemonBag;
+    private final ArrayList<AllyPokemon> pokemonBag;
 
     private Player()
     {
         pokemonBag = new ArrayList<>();
     }
 
-    public ArrayList<Pokemon> getPokemon()
+    public ArrayList<AllyPokemon> getPokemon()
     {
         return pokemonBag;
     }
 
-    public void addStarterPokemon(Pokemon pokemon)
+    public void addStarterPokemon(AllyPokemon pokemon)
     {
         pokemonBag.add(pokemon);
     }

@@ -3,7 +3,6 @@ package Screens.Pokemon;
 import PokemonInfo.Info;
 import PokemonInfo.Player;
 import Screens.MainGame;
-import Screens.StatsScreen;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
@@ -22,7 +21,7 @@ public class PokemonScreen extends ScreenAdapter
         battleScreen = new BattleScreen(game, this);
         statsScreen = new StatsScreen(game, this);
         Player player = Player.getPlayerInstance();
-        player.addStarterPokemon(Info.starterPokemon().get(starterPokemonName).get());
+        player.addStarterPokemon(Info.getStarterPokemon(starterPokemonName));
     }
 
     @Override

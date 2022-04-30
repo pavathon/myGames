@@ -10,19 +10,19 @@ object Info {
     "Razor Leaf" -> Move("Razor Leaf", Type.GRASS, 20)
   )
 
-  lazy val starterPokemon: Map[String, Pokemon] = Map(
+  lazy val starterPokemon: Map[String, AllyPokemon] = Map(
     "Charmander" ->
-      Pokemon("Charmander", Type.FIRE, Seq(Some(allMoves("Tackle")), Some(allMoves("Ember")), None, None)),
+      new AllyPokemon("Charmander", Type.FIRE, Seq(Some(allMoves("Tackle")), Some(allMoves("Ember")), None, None)),
     "Squirtle"   ->
-      Pokemon("Squirtle", Type.WATER, Seq(Some(allMoves("Tackle")), Some(allMoves("Bubblebeam")), None, None)),
+      new AllyPokemon("Squirtle", Type.WATER, Seq(Some(allMoves("Tackle")), Some(allMoves("Bubblebeam")), None, None)),
     "Bulbasaur"  ->
-      Pokemon("Bulbasaur", Type.GRASS, Seq(Some(allMoves("Tackle")), Some(allMoves("Razor Leaf")), None, None))
+      new AllyPokemon("Bulbasaur", Type.GRASS, Seq(Some(allMoves("Tackle")), Some(allMoves("Razor Leaf")), None, None))
   )
 
   lazy val enemyPokemon: List[Pokemon] = List(
-    Pokemon("Rattata", Type.GRASS, Seq(Some(allMoves("Tackle")), None, None, None)),
-    Pokemon("Bidoof", Type.GRASS, Seq(Some(allMoves("Tackle")), None, None, None)),
-    Pokemon("Starly", Type.GRASS, Seq(Some(allMoves("Tackle")), None, None, None))
+    Pokemon("Rattata", Type.NORMAL, Seq(Some(allMoves("Tackle")), None, None, None)),
+    Pokemon("Budew", Type.GRASS, Seq(Some(allMoves("Tackle")), None, None, None)),
+    Pokemon("Starly", Type.FLYING, Seq(Some(allMoves("Tackle")), None, None, None))
   )
 
   lazy val strengths: Map[Type, Set[Type]] = Map(
@@ -111,4 +111,9 @@ object Info {
     val index: Int = Random.nextInt(enemyPokemon.length)
     enemyPokemon(index)
   }
+
+  def getStarterPokemon(pokemonName: String): AllyPokemon = {
+    starterPokemon(pokemonName)
+  }
+
 }

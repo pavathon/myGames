@@ -1,14 +1,9 @@
 package PokemonInfo
 
-import java.util
-import scala.collection.JavaConverters.seqAsJavaListConverter
+case class Pokemon(
+  name: String,
+  pokemonType: Type,
+  moveSet: Seq[Option[Move]]
+) extends PokemonTrait
 
-case class Pokemon(name: String, pokemonType: Type, moveSet: Seq[Option[Move]]) {
-  def moveSetToString: String = {
-    moveSet.flatten.mkString(" ")
-  }
 
-  def getMoveNames: util.List[String] = {
-    moveSet.map(_.fold("-")(_.name)).asJava
-  }
-}

@@ -1,5 +1,6 @@
 package Screens.Pokemon;
 
+import PokemonInfo.AllyPokemon;
 import PokemonInfo.Info;
 import PokemonInfo.Player;
 import PokemonInfo.Pokemon;
@@ -17,6 +18,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.utils.Timer;
 import scala.Tuple2;
 
 import java.util.ArrayList;
@@ -58,7 +60,7 @@ public class BattleScreen extends ScreenAdapter {
         stage = new Stage();
         Gdx.input.setInputProcessor(stage);
 
-        ArrayList<Pokemon> playerPokemon = Player.getPlayerInstance().getPokemon();
+        ArrayList<AllyPokemon> playerPokemon = Player.getPlayerInstance().getPokemon();
         Pokemon enemyPokemon = Info.getRandomEnemyPokemon();
 
         Skin skin = createSkin();
@@ -84,7 +86,7 @@ public class BattleScreen extends ScreenAdapter {
         List<String> moveNames = playerPokemon.get(0).getMoveNames();
 
         TextButton[] moveButtons =
-            createMoveButtons(font, skin, moveNames, enemyHealthBar, enemyPokemon, battleDescriptionLabel, minWidth);
+            createMoveButtons(font, skin, moveNames, playerPokemon.get(0), enemyHealthBar, enemyPokemon, battleDescriptionLabel, minWidth);
 
         Table moveButtonsTable = createMoveButtonsTable(moveButtons);
 
@@ -172,6 +174,7 @@ public class BattleScreen extends ScreenAdapter {
             BitmapFont font,
             Skin skin,
             List<String> moveNames,
+            AllyPokemon ally,
             ProgressBar enemyHealthBar,
             Pokemon enemy,
             Label battleDescriptionLabel,
@@ -183,19 +186,35 @@ public class BattleScreen extends ScreenAdapter {
             moveButtonStyle.font = font;
             moveButtonStyle.up = skin.getDrawable("default-select");
             final TextButton moveButton = new TextButton(moveNames.get(i), moveButtonStyle);
-            if (!moveNames.get(i).equals("-")) moveButtonStyle.down = skin.getDrawable("default-select-selection");
+            if (!moveNames.get(i).equals("-")) {
+                int finalI = i;
+                moveButtonStyle.down = skin.getDrawable("default-select-selection");
+                moveButton.addListener(new ChangeListener() {
+                    @Override
+                    public void changed(ChangeEvent event, Actor actor) {
+                        Tuple2<Object, String> effective = Info.getEffectiveDamage(moveNames.get(finalI), enemy);
+                        float dmg = (float) effective._1 * (minWidth / 100);
+                        float remainingHealth = enemyHealthBar.getWidth() - dmg;
+                        if (remainingHealth <= 0) {
+                            enemyHealthBar.setWidth(0);
+                            battleDescriptionLabel.setText("You have defeated the enemy " + enemy.name() + "!" + " You have gained 50 exp");
+                            ally.gainExp(50);
+                            Timer.schedule(new Timer.Task() {
+                                @Override
+                                public void run() {
+                                    mainGame.setScreen(pokemonScreen);
+                                }
+                            }, 2);
+                        }
+                        else {
+                            enemyHealthBar.setWidth(remainingHealth);
+                            setColorStatus(enemyHealthBar);
+                            battleDescriptionLabel.setText(effective._2);
+                        }
+                    }
+                });
+            }
             else moveButton.setDisabled(true);
-            int finalI = i;
-            moveButton.addListener(new ChangeListener() {
-                @Override
-                public void changed(ChangeEvent event, Actor actor) {
-                    Tuple2<Object, String> effective = Info.getEffectiveDamage(moveNames.get(finalI), enemy);
-                    float dmg = (float) effective._1 * (minWidth / 100);
-                    enemyHealthBar.setWidth(enemyHealthBar.getWidth() - dmg);
-                    setColorStatus(enemyHealthBar);
-                    battleDescriptionLabel.setText(effective._2);
-                }
-            });
             moveButtons[i] = moveButton;
         }
         return moveButtons;
