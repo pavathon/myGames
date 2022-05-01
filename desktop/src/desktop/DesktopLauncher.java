@@ -1,6 +1,6 @@
 package desktop;
 
-import Screens.MainGame;
+import com.myGames.Screens.MainGame;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 
