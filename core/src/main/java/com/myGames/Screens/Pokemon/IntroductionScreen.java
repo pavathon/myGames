@@ -46,7 +46,7 @@ public class IntroductionScreen extends ScreenAdapter
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         game.batch.begin();
-        game.font.draw(game.batch, "Welcome to PokemonInfo.Pokemon!", Gdx.graphics.getWidth() * .4f, Gdx.graphics.getHeight() * .85f);
+        game.font.draw(game.batch, "Welcome to Pokemon!", Gdx.graphics.getWidth() * .4f, Gdx.graphics.getHeight() * .85f);
         game.font.draw(game.batch, "Choose your starter pokemon:", Gdx.graphics.getWidth() * .25f, Gdx.graphics.getHeight() * .65f);
         game.font.draw(game.batch, "1. Charmander", Gdx.graphics.getWidth() * .25f, Gdx.graphics.getHeight() * .55f);
         game.font.draw(game.batch, "2. Squirtle", Gdx.graphics.getWidth() * .25f, Gdx.graphics.getHeight() * .5f);

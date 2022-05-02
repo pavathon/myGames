@@ -1,13 +1,14 @@
 package com.myGames.Screens.Pokemon;
 
 import com.myGames.PokemonInfoScala.Info;
-import com.myGames.PokemonInfo.Player;
+import com.myGames.PokemonInfoScala.Player;
 import com.myGames.Screens.MainGame;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
+import com.myGames.Screens.StatsScreen;
 
 public class PokemonScreen extends ScreenAdapter
 {
@@ -20,8 +21,7 @@ public class PokemonScreen extends ScreenAdapter
         this.game = game;
         battleScreen = new BattleScreen(game, this);
         statsScreen = new StatsScreen(game, this);
-        Player player = Player.getPlayerInstance();
-        player.addStarterPokemon(Info.getStarterPokemon(starterPokemonName));
+        Player.addPokemon(Info.getStarterPokemon(starterPokemonName));
     }
 
     @Override

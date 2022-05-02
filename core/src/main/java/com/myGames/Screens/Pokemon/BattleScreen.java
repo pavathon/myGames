@@ -2,7 +2,7 @@ package com.myGames.Screens.Pokemon;
 
 import com.myGames.PokemonInfoScala.AllyPokemon;
 import com.myGames.PokemonInfoScala.Info;
-import com.myGames.PokemonInfo.Player;
+import com.myGames.PokemonInfoScala.Player;
 import com.myGames.PokemonInfoScala.Pokemon;
 import com.myGames.Screens.MainGame;
 import com.badlogic.gdx.Gdx;
@@ -20,6 +20,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Timer;
 import scala.Tuple2;
+import scala.collection.mutable.ArrayBuffer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,7 +61,7 @@ public class BattleScreen extends ScreenAdapter {
         stage = new Stage();
         Gdx.input.setInputProcessor(stage);
 
-        ArrayList<AllyPokemon> playerPokemon = Player.getPlayerInstance().getPokemon();
+        ArrayBuffer<AllyPokemon> playerPokemon = Player.pokemonBag();
         Pokemon enemyPokemon = Info.getRandomEnemyPokemon();
 
         Skin skin = createSkin();
@@ -76,17 +77,17 @@ public class BattleScreen extends ScreenAdapter {
         enemyHealthBar.setPosition(MainGame.WORLD_WIDTH - enemyHealthBar.getWidth() - 50, MainGame.WORLD_HEIGHT - 150);
 
         Label.LabelStyle nameLabelStyle = createNameLabelStyle(font);
-        Label allyNameLabel = createNameLabel(playerPokemon.get(0).name(), nameLabelStyle, allyHealthBar);
+        Label allyNameLabel = createNameLabel(playerPokemon.head().name(), nameLabelStyle, allyHealthBar);
         Label enemyNameLabel = createNameLabel(enemyPokemon.name(), nameLabelStyle, enemyHealthBar);
 
         Image allyPokemonImage = createAllyPokemonImage();
 
         Label battleDescriptionLabel = createBattleDescriptionLabel();
 
-        List<String> moveNames = playerPokemon.get(0).getMoveNames();
+        List<String> moveNames = playerPokemon.head().getMoveNames();
 
         TextButton[] moveButtons =
-            createMoveButtons(font, skin, moveNames, playerPokemon.get(0), enemyHealthBar, enemyPokemon, battleDescriptionLabel, minWidth);
+            createMoveButtons(font, skin, moveNames, playerPokemon.head(), enemyHealthBar, enemyPokemon, battleDescriptionLabel, minWidth);
 
         Table moveButtonsTable = createMoveButtonsTable(moveButtons);
 

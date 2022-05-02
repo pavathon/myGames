@@ -64,7 +64,7 @@ public class MenuScreen extends ScreenAdapter
         game.font.draw(game.batch, "2. Pong", Gdx.graphics.getWidth() * .25f, Gdx.graphics.getHeight() * .6f);
         game.font.draw(game.batch, "3. Snake", Gdx.graphics.getWidth() * .25f, Gdx.graphics.getHeight() * .55f);
         game.font.draw(game.batch, "4. Space", Gdx.graphics.getWidth() * .25f, Gdx.graphics.getHeight() * .5f);
-        game.font.draw(game.batch, "5. PokemonInfo.Pokemon", Gdx.graphics.getWidth() * .25f, Gdx.graphics.getHeight() * .45f);
+        game.font.draw(game.batch, "5. Pokemon", Gdx.graphics.getWidth() * .25f, Gdx.graphics.getHeight() * .45f);
         game.font.draw(game.batch, "ESC to quit", Gdx.graphics.getWidth() * .25f, Gdx.graphics.getHeight() * .15f);
         game.batch.end();
     }
