@@ -1,29 +1,22 @@
 package com.myGames.Screens.Pokemon
 
-import com.badlogic.gdx.{ Gdx, Input, InputAdapter, ScreenAdapter }
-import com.badlogic.gdx.graphics.{ Color, GL20, Texture }
 import com.badlogic.gdx.graphics.g2d.{ BitmapFont, TextureAtlas }
-import com.badlogic.gdx.scenes.scene2d.{ Actor, Stage }
+import com.badlogic.gdx.graphics.{ Color, GL20, Texture }
 import com.badlogic.gdx.scenes.scene2d.ui._
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
-import com.badlogic.gdx.utils.{ Json, Timer }
-import com.myGames.PokemonInfoScala.{ AllyPokemon, Info, Player, Pokemon, SaveGame }
+import com.badlogic.gdx.scenes.scene2d.{ Actor, Stage }
+import com.badlogic.gdx.utils.Timer
+import com.badlogic.gdx.{ Gdx, ScreenAdapter }
+import com.myGames.PokemonInfoScala._
 import com.myGames.Screens.MainGame
 
-import java.io.{ FileWriter, IOException }
 import java.util
 import scala.collection.mutable.ArrayBuffer
 
 class BattleScreen(val mainGame: MainGame, val pokemonScreen: PokemonScreen) extends ScreenAdapter {
-  private lazy val stage: Stage = new Stage()
+  private val stage: Stage = new Stage()
 
   override def show(): Unit = {
-    Gdx.input.setInputProcessor(new InputAdapter() {
-      override def keyDown(keyCode: Int): Boolean = {
-        if (keyCode == Input.Keys.ESCAPE) mainGame.setScreen(pokemonScreen)
-        true
-      }
-    })
     createBattle()
   }
 
@@ -72,7 +65,10 @@ class BattleScreen(val mainGame: MainGame, val pokemonScreen: PokemonScreen) ext
     stage.addActor(allyNameLabel)
   }
 
-  override def hide(): Unit = Gdx.input.setInputProcessor(null)
+  override def hide(): Unit = {
+    Gdx.input.setInputProcessor(null)
+    stage.clear()
+  }
 
   override def dispose(): Unit = stage.dispose()
 
@@ -166,20 +162,6 @@ class BattleScreen(val mainGame: MainGame, val pokemonScreen: PokemonScreen) ext
         setColorStatus(enemyHealthBar)
         battleDescriptionLabel.setText(effective._2)
       }
-    }
-  }
-
-  private def saveGame(ally: AllyPokemon): Unit = {
-    val json = new Json
-    val pokemon = json.prettyPrint(ally)
-    try {
-      val fileWriter = new FileWriter("/home/mithrandir/bin/gameSaves/save.json")
-      fileWriter.write(pokemon)
-      fileWriter.close()
-    } catch {
-      case e: IOException =>
-        System.out.println("An error occurred.")
-        e.printStackTrace()
     }
   }
 

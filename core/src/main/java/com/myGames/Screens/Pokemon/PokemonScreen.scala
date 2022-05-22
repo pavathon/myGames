@@ -26,9 +26,11 @@ class PokemonScreen() extends ScreenAdapter {
 
   override def show(): Unit = Gdx.input.setInputProcessor(new InputAdapter() {
     override def keyDown(keyCode: Int): Boolean = {
-      if (keyCode == Input.Keys.ESCAPE) game.setScreen(game.menuScreen)
-      else if (keyCode == Input.Keys.NUM_1) game.setScreen(battleScreen)
-      else if (keyCode == Input.Keys.NUM_2) game.setScreen(statsScreen)
+      keyCode match {
+        case Input.Keys.ESCAPE => game.setScreen(game.menuScreen)
+        case Input.Keys.NUM_1 => game.setScreen(battleScreen)
+        case Input.Keys.NUM_2 => game.setScreen(statsScreen)
+      }
       true
     }
   })
