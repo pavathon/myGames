@@ -8,4 +8,8 @@ object Player {
   def addPokemon(allyPokemon: AllyPokemon): Unit = {
     pokemonBag += allyPokemon
   }
+
+  def addAllPokemon(allyPokemon: List[AllyPokemon]): Unit = {
+    pokemonBag.appendAll(allyPokemon)
+  }
 }

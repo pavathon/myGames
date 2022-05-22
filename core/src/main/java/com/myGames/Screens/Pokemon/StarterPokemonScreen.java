@@ -7,11 +7,11 @@ import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
 
-public class IntroductionScreen extends ScreenAdapter
+public class StarterPokemonScreen extends ScreenAdapter
 {
     private final MainGame game;
 
-    public IntroductionScreen(MainGame game)
+    public StarterPokemonScreen(MainGame game)
     {
         this.game = game;
     }
@@ -27,10 +27,12 @@ public class IntroductionScreen extends ScreenAdapter
                         game.setScreen(game.menuScreen);
                         break;
                     case Input.Keys.NUM_1:
-                        game.setScreen(new StarterPokemonScreen(game));
+                        game.setScreen(new PokemonScreen(game, "Charmander"));
                         break;
                     case Input.Keys.NUM_2:
-                        game.setScreen(new PokemonScreen(game));
+                        game.setScreen(new PokemonScreen(game, "Squirtle"));
+                    case Input.Keys.NUM_3:
+                        game.setScreen(new PokemonScreen(game, "Bulbasaur"));
                 }
                 return true;
             }
@@ -45,8 +47,10 @@ public class IntroductionScreen extends ScreenAdapter
 
         game.batch.begin();
         game.font.draw(game.batch, "Welcome to Pokemon!", Gdx.graphics.getWidth() * .4f, Gdx.graphics.getHeight() * .85f);
-        game.font.draw(game.batch, "1. New game", Gdx.graphics.getWidth() * .25f, Gdx.graphics.getHeight() * .55f);
-        game.font.draw(game.batch, "2. Load save game", Gdx.graphics.getWidth() * .25f, Gdx.graphics.getHeight() * .5f);
+        game.font.draw(game.batch, "Choose your starter pokemon:", Gdx.graphics.getWidth() * .25f, Gdx.graphics.getHeight() * .65f);
+        game.font.draw(game.batch, "1. Charmander", Gdx.graphics.getWidth() * .25f, Gdx.graphics.getHeight() * .55f);
+        game.font.draw(game.batch, "2. Squirtle", Gdx.graphics.getWidth() * .25f, Gdx.graphics.getHeight() * .5f);
+        game.font.draw(game.batch, "3. Bulbasaur", Gdx.graphics.getWidth() * .25f, Gdx.graphics.getHeight() * .45f);
         game.batch.end();
     }
 

@@ -1,18 +1,29 @@
 package com.myGames.PokemonInfoScala
 
-import com.myGames.PokemonInfo.Type
 
 class AllyPokemon(
   givenName: String,
-  givenPokemonType: Type,
-  givenMoveSet: Seq[Option[Move]]
+  givenPokemonType: Type.Value,
+  givenMoveSet: List[Option[Move]]
 ) extends PokemonTrait {
   override def name: String = givenName
-  override def pokemonType: Type = givenPokemonType
-  override def moveSet: Seq[Option[Move]] = givenMoveSet
+  override def pokemonType: Type.Value = givenPokemonType
+  override def moveSet: List[Option[Move]] = givenMoveSet
 
   var level: Int = 1
   var exp: Int = 0
+
+  def this(
+    givenName: String,
+    givenPokemonType: Type.Value,
+    givenMoveSet: List[Option[Move]],
+    givenLevel: Int,
+    givenExp: Int
+  ) = {
+    this(givenName, givenPokemonType, givenMoveSet)
+    level = givenLevel
+    exp = givenExp
+  }
 
   def gainExp(gainedExp: Int): Unit = {
     exp += gainedExp

@@ -1,14 +1,12 @@
 package com.myGames.PokemonInfoScala
 
-import com.myGames.PokemonInfo.Type
-
 import java.util
 import scala.collection.JavaConverters.seqAsJavaListConverter
 
 trait PokemonTrait {
   def name: String
 
-  def pokemonType: Type
+  def pokemonType: Type.Value
 
   def moveSet: Seq[Option[Move]]
 
