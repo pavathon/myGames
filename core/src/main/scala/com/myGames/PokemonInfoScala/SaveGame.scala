@@ -44,7 +44,6 @@ object SaveGame {
 
   def loadAllyPokemon: List[AllyPokemon] = {
     val jsonReader = new JsonReader()
-//    val base: JsonValue = jsonReader.parse(Gdx.files.external("/home/mithrandir/bin/gameSaves/save.json"))
     val file = Source.fromFile("/home/mithrandir/bin/gameSaves/save.json")
     val str = file.getLines().mkString
     val base = jsonReader.parse(str)
