@@ -44,22 +44,22 @@ object SaveGame {
 
   def loadAllyPokemon: List[AllyPokemon] = {
     val jsonReader = new JsonReader()
-    val file = Source.fromFile("/home/mithrandir/bin/gameSaves/save.json")
-    val str = file.getLines().mkString
-    val base = jsonReader.parse(str)
-    file.close()
+    val jsonFile = Source.fromFile("/home/mithrandir/bin/gameSaves/save.json")
+    val jsonString = jsonFile.getLines().mkString
+    val base = jsonReader.parse(jsonString)
+    jsonFile.close()
     val pokemonName = base.getString("name")
     val pokemonType = Type.withName(base.getString("type"))
 
-    val moveSet: List[Option[Move]] = base.get("moveSet").iterator().asScala.map(moveObj => {
+    val moveSet: List[Option[Move]] = base.get("moveSet").iterator().asScala.map { moveObj =>
       if (moveObj.isEmpty) None
       else {
-        val moveName = moveObj.getString("name")
-        val moveType = moveObj.getString("type")
-        val moveDamage = moveObj.getInt("damage")
-        Some(Move(moveName, Type.withName(moveType), moveDamage))
+        val moveName: String = moveObj.getString("name")
+        val moveType: Type.Value = Type.withName(moveObj.getString("type"))
+        val moveDamage: Int = moveObj.getInt("damage")
+        Some(Move(moveName, moveType, moveDamage))
       }
-    }).toList
+    }.toList
 
     val level = base.getInt("level")
     val exp = base.getInt("experience")
