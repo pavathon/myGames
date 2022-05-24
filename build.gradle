@@ -10,6 +10,7 @@ buildscript {
         google()
     }
     dependencies {
+        classpath "gradle.plugin.com.github.maiflai:gradle-scalatest:0.25"
     }
 }
 
@@ -52,12 +53,14 @@ project(":desktop") {
 project(":core") {
     apply plugin: "java-library"
     apply plugin: "scala"
+    apply plugin: "com.github.maiflai.scalatest"
 
     dependencies {
         api "com.badlogicgames.gdx:gdx:$gdxVersion"
         api "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
-        testCompile 'org.scalatest:scalatest_2.13:3.2.0'
-        compile 'org.scala-lang:scala-library:2.11.12'
+        testCompile 'org.scalatest:scalatest_2.12:3.2.0'
+        testRuntime 'com.vladsch.flexmark:flexmark-all:0.35.10'
+        compile 'org.scala-lang:scala-library:2.12.14'
     }
 
 }
