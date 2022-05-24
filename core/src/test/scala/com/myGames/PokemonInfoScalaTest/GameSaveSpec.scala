@@ -15,8 +15,8 @@ class GameSaveSpec extends AnyFlatSpec with Matchers with PrivateMethodTester {
 
   it should "return the correct values" in {
     val allyPokemon: AllyPokemon = Info.starterPokemon("Charmander")
-    val result = (GameSave invokePrivate allyPokemonToJson(allyPokemon)).filterNot(_.isWhitespace)
-    val expected = Source.fromResource("dummySave.json").getLines.mkString.filterNot(_.isWhitespace)
-    result shouldBe expected
+    val result = GameSave invokePrivate allyPokemonToJson(allyPokemon)
+    val expected = Source.fromResource("dummySave.json").getLines.mkString
+    result.filterNot(_.isWhitespace) shouldBe expected.filterNot(_.isWhitespace)
   }
 }
