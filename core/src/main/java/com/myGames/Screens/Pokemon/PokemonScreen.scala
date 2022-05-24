@@ -2,7 +2,7 @@ package com.myGames.Screens.Pokemon
 
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.{ Gdx, Input, InputAdapter, ScreenAdapter }
-import com.myGames.PokemonInfoScala.{ Info, Player, SaveGame }
+import com.myGames.PokemonInfoScala.{ Info, Player, GameSave }
 import com.myGames.Screens.MainGame
 import com.myGames.ScreensScala.StatsScreen
 
@@ -14,7 +14,7 @@ class PokemonScreen() extends ScreenAdapter {
   def this(game: MainGame) {
     this()
     this.game = game
-    val ally = SaveGame.loadAllyPokemon
+    val ally = GameSave.loadSave
     Player.addAllPokemon(ally)
   }
 

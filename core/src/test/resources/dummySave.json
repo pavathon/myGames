@@ -1,0 +1,20 @@
+{
+  "name": "Charmander",
+  "type": "Fire",
+  "moveSet": [
+    {
+      "name": "Tackle",
+      "type": "Normal",
+      "damage": 10
+    },
+    {
+      "name": "Ember",
+      "type": "Fire",
+      "damage": 20
+    },
+    {},
+    {}
+  ],
+  "level": 1,
+  "experience": 0
+}

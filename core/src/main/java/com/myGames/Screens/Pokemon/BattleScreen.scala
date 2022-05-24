@@ -153,7 +153,7 @@ class BattleScreen(val mainGame: MainGame, val pokemonScreen: PokemonScreen) ext
         Timer.schedule(new Timer.Task() {
           override def run(): Unit = {
             mainGame.setScreen(pokemonScreen)
-            SaveGame.saveAllyPokemon(ally)
+            GameSave.saveGame(ally)
           }
         }, 2)
       }

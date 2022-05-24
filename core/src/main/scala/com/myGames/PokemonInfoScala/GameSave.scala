@@ -6,9 +6,15 @@ import java.io.{ FileWriter, IOException, StringWriter }
 import scala.collection.JavaConverters.asScalaIteratorConverter
 import scala.io.Source
 
-object SaveGame {
+object GameSave {
+  private val pathToSaveFile = "/home/mithrandir/bin/gameSaves/save.json"
 
-  def saveAllyPokemon(ally: AllyPokemon): Unit = {
+  def saveGame(ally: AllyPokemon): Unit = {
+    val resultJson: String = allyPokemonToJson(ally)
+    writeToSaveFile(resultJson)
+  }
+
+  private def allyPokemonToJson(ally: AllyPokemon): String = {
     val jsonObject: Json = new Json()
     val jsonText = new StringWriter()
     val writer = new JsonWriter(jsonText)
@@ -38,16 +44,13 @@ object SaveGame {
     jsonObject.writeValue("experience", ally.exp)
     jsonObject.writeObjectEnd()
 
-    val resultJson: String = jsonObject.prettyPrint(jsonObject.getWriter.getWriter.toString)
-    writeToFile(resultJson)
+    jsonObject.prettyPrint(jsonObject.getWriter.getWriter.toString)
   }
 
-  def loadAllyPokemon: List[AllyPokemon] = {
+  def loadSave: List[AllyPokemon] = {
     val jsonReader = new JsonReader()
-    val jsonFile = Source.fromFile("/home/mithrandir/bin/gameSaves/save.json")
-    val jsonString = jsonFile.getLines().mkString
+    val jsonString = readFromSaveFile
     val base = jsonReader.parse(jsonString)
-    jsonFile.close()
     val pokemonName = base.getString("name")
     val pokemonType = Type.withName(base.getString("type"))
 
@@ -67,11 +70,18 @@ object SaveGame {
     List(new AllyPokemon(pokemonName, pokemonType, moveSet, level, exp))
   }
 
-  private def writeToFile(jsonString: String): Unit = {
+  private def readFromSaveFile: String = {
+    val saveFile = Source.fromFile(pathToSaveFile)
+    val jsonString = saveFile.getLines().mkString
+    saveFile.close()
+    jsonString
+  }
+
+  private def writeToSaveFile(jsonString: String): Unit = {
     try {
-      val fileWriter = new FileWriter("/home/mithrandir/bin/gameSaves/save.json")
-      fileWriter.write(jsonString)
-      fileWriter.close()
+      val saveFileWriter = new FileWriter(pathToSaveFile)
+      saveFileWriter.write(jsonString)
+      saveFileWriter.close()
     } catch {
       case e: IOException =>
         System.out.println("An error occurred trying to save the game.")

@@ -30,10 +30,10 @@ class AllyPokemon(
     checkLevelUp()
   }
 
-  def checkLevelUp(): Unit = {
+  private def checkLevelUp(): Unit = {
     if (exp >= AllyPokemon.maxExp) {
       level += 1
-      exp -= AllyPokemon.maxExp
+      exp = 0
     }
   }
 }
