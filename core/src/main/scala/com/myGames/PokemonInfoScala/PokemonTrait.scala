@@ -1,20 +1,17 @@
 package com.myGames.PokemonInfoScala
 
-import java.util
-import scala.collection.JavaConverters.seqAsJavaListConverter
-
 trait PokemonTrait {
   def name: String
 
   def pokemonType: Type.Value
 
-  def moveSet: Seq[Option[Move]]
+  def moveSet: List[Option[Move]]
 
   def moveSetToString: String = {
     moveSet.flatten.mkString(" ")
   }
 
-  def getMoveNames: util.List[String] = {
-    moveSet.map(_.fold("-")(_.name)).asJava
+  def getMoveNames: List[String] = {
+    moveSet.map(_.fold("-")(_.name))
   }
 }

@@ -2,7 +2,7 @@ package com.myGames.Screens.Pokemon
 
 import com.badlogic.gdx.graphics.g2d.{ BitmapFont, TextureAtlas }
 import com.badlogic.gdx.graphics.{ Color, GL20, Texture }
-import com.badlogic.gdx.scenes.scene2d.ui._
+import com.badlogic.gdx.scenes.scene2d.ui.{ Image, Label, ProgressBar, Skin, Table, TextButton }
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.scenes.scene2d.{ Actor, Stage }
 import com.badlogic.gdx.utils.Timer
@@ -10,7 +10,6 @@ import com.badlogic.gdx.{ Gdx, ScreenAdapter }
 import com.myGames.PokemonInfoScala._
 import com.myGames.Screens.MainGame
 
-import java.util
 import scala.collection.mutable.ArrayBuffer
 
 class BattleScreen(val mainGame: MainGame, val pokemonScreen: PokemonScreen) extends ScreenAdapter {
@@ -51,8 +50,9 @@ class BattleScreen(val mainGame: MainGame, val pokemonScreen: PokemonScreen) ext
 
     val battleDescriptionLabel: Label = createBattleDescriptionLabel
 
-    val moveNames: util.List[String] = playerPokemon.head.getMoveNames
-    val moveButtons: Array[TextButton] = createMoveButtons(font, skin, moveNames, playerPokemon.head, enemyHealthBar, enemyPokemon, battleDescriptionLabel, minWidth)
+    val moveNames: List[String] = playerPokemon.head.getMoveNames
+    val moveButtons: List[TextButton] = createMoveButtons(font, skin, moveNames)
+    addMoveButtonListeners(moveButtons, playerPokemon.head, enemyHealthBar, enemyPokemon, battleDescriptionLabel, minWidth)
     val moveButtonsTable: Table = createMoveButtonsTable(moveButtons)
     battleDescriptionLabel.setPosition(moveButtonsTable.getX, moveButtonsTable.getY + moveButtonsTable.getHeight + 10)
 
@@ -124,54 +124,70 @@ class BattleScreen(val mainGame: MainGame, val pokemonScreen: PokemonScreen) ext
     allyImg
   }
 
-  private def createMoveButtons(font: BitmapFont, skin: Skin, moveNames: util.List[String], ally: AllyPokemon, enemyHealthBar: ProgressBar, enemy: Pokemon, battleDescriptionLabel: Label, minWidth: Float): Array[TextButton] = {
-    val moveButtons = new Array[TextButton](4)
-    for (index <- 0 until 4) {
+  private def createMoveButtons(
+    font: BitmapFont,
+    skin: Skin,
+    moveNames: List[String],
+  ): List[TextButton] =
+    moveNames.map { moveName =>
       val moveButtonStyle = new TextButton.TextButtonStyle
       moveButtonStyle.font = font
       moveButtonStyle.up = skin.getDrawable("default-select")
-      val moveButton = new TextButton(moveNames.get(index), moveButtonStyle)
-      if (!(moveNames.get(index) == "-")) {
-        moveButtonStyle.down = skin.getDrawable("default-select-selection")
-        moveButton.addListener(addMoveButtonListener(moveNames.get(index), ally, enemyHealthBar, enemy, battleDescriptionLabel, minWidth))
-      }
-      else moveButton.setDisabled(true)
-      moveButtons(index) = moveButton
+      moveButtonStyle.down = skin.getDrawable("default-select-selection")
+      val moveButton = new TextButton(moveName, moveButtonStyle)
+      moveButton
     }
-    moveButtons
-  }
 
-  private def addMoveButtonListener(attackMove: String, ally: AllyPokemon, enemyHealthBar: ProgressBar, enemy: Pokemon, battleDescriptionLabel: Label, minWidth: Float): ChangeListener = new ChangeListener() {
-    override def changed(event: ChangeListener.ChangeEvent, actor: Actor): Unit = {
-      val effective = Info.getEffectiveDamage(attackMove, enemy)
-      val dmg = effective._1 * (minWidth / 100)
-      val remainingHealth = enemyHealthBar.getWidth - dmg
-      if (remainingHealth <= 0) {
-        enemyHealthBar.setWidth(0)
-        battleDescriptionLabel.setText("You have defeated the enemy " + enemy.name + "!" + " You have gained 50 exp")
-        ally.gainExp(50)
-        Timer.schedule(new Timer.Task() {
-          override def run(): Unit = {
-            mainGame.setScreen(pokemonScreen)
-            GameSave.saveGame(ally)
+
+  private def addMoveButtonListeners(
+    moveButtons: List[TextButton],
+    ally: AllyPokemon,
+    enemyHealthBar: ProgressBar,
+    enemy: Pokemon,
+    battleDescriptionLabel: Label,
+    minWidth: Float
+  ): Unit = {
+    val (emptyMoves, actualMoves) = moveButtons.partition(_.getText == "-")
+    emptyMoves.foreach { move =>
+      move.getStyle.down = null
+      move.setDisabled(true)
+    }
+    actualMoves.foreach { move =>
+      move.addListener(new ChangeListener() {
+        override def changed(event: ChangeListener.ChangeEvent, actor: Actor): Unit = {
+          val (effectiveDmg, effectiveText) = Info.getEffectiveDamage(move.getText.toString, enemy)
+          val dmg = effectiveDmg * (minWidth / 100)
+          val remainingHealth = enemyHealthBar.getWidth - dmg
+          if (remainingHealth <= 0) {
+            enemyHealthBar.setWidth(0)
+            moveButtons.foreach(moveButton => {
+              moveButton.getStyle.down = null
+              moveButton.setDisabled(true)
+            })
+            battleDescriptionLabel.setText(s"You have defeated the enemy ${enemy.name}! You have gained 50 exp")
+            ally.gainExp(50)
+            Timer.schedule(new Timer.Task() {
+              override def run(): Unit = {
+                mainGame.setScreen(pokemonScreen)
+                GameSave.saveGame(ally)
+              }
+            }, 2)
           }
-        }, 2)
-      }
-      else {
-        enemyHealthBar.setWidth(remainingHealth)
-        setColorStatus(enemyHealthBar)
-        battleDescriptionLabel.setText(effective._2)
-      }
-    }
+          else {
+            enemyHealthBar.setWidth(remainingHealth)
+            setColorStatus(enemyHealthBar)
+            battleDescriptionLabel.setText(effectiveText)
+          }
+        }
+    })}
   }
 
-  private def createMoveButtonsTable(moveButtons: Array[TextButton]): Table = {
+  private def createMoveButtonsTable(moveButtons: List[TextButton]): Table = {
     val table = new Table
-    table.add(moveButtons(0)).expand.fill
-    table.add(moveButtons(1)).expand.fill
+    val (top, bottom) = moveButtons.splitAt(2)
+    top.foreach(table.add(_).expand.fill)
     table.row
-    table.add(moveButtons(2)).expand.fill
-    table.add(moveButtons(3)).expand.fill
+    bottom.foreach(table.add(_).expand.fill)
     table.setSize(MainGame.WORLD_WIDTH, MainGame.WORLD_HEIGHT / 3)
     table
   }
