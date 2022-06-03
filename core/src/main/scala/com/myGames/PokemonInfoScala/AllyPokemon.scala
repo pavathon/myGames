@@ -1,41 +1,26 @@
 package com.myGames.PokemonInfoScala
 
+import com.myGames.PokemonInfoScala.AllyPokemon.maxExp
+
 
 class AllyPokemon(
-  givenName: String,
-  givenPokemonType: Type.Value,
-  givenMoveSet: List[Option[Move]]
+  override val name: String,
+  override val pokemonType: Type.Value,
+  override val moveSet: List[Option[Move]],
+  var level: Int = 1,
+  var exp: Int = 0,
 ) extends PokemonTrait {
-  override def name: String = givenName
-  override def pokemonType: Type.Value = givenPokemonType
-  override def moveSet: List[Option[Move]] = givenMoveSet
-
-  var level: Int = 1
-  var exp: Int = 0
-
-  def this(
-    givenName: String,
-    givenPokemonType: Type.Value,
-    givenMoveSet: List[Option[Move]],
-    givenLevel: Int,
-    givenExp: Int
-  ) = {
-    this(givenName, givenPokemonType, givenMoveSet)
-    level = givenLevel
-    exp = givenExp
-  }
 
   def gainExp(gainedExp: Int): Unit = {
     exp += gainedExp
-    checkLevelUp()
+    if (exp >= maxExp) levelUp()
   }
 
-  private def checkLevelUp(): Unit = {
-    if (exp >= AllyPokemon.maxExp) {
-      level += 1
-      exp = 0
-    }
+  private def levelUp(): Unit = {
+    level += 1
+    exp = 0
   }
+
 }
 
 object AllyPokemon {
