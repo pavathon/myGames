@@ -65,7 +65,6 @@ object Info {
     Type.Steel    -> Set(Type.Fire, Type.Water, Type.Electric, Type.Steel)
   )
 
-
   lazy val noEffect: Map[Type.Value, Set[Type.Value]] = Map(
     Type.Normal   -> Set(Type.Ghost),
     Type.Fire     -> Set.empty,
@@ -86,7 +85,7 @@ object Info {
     Type.Steel    -> Set.empty
   )
 
-  def getEffectiveDamage(attackerMoveName: String, defender: Pokemon): (Float, String) = {
+  def getEffectiveDamage(attackerName: String, attackerMoveName: String, defender: PokemonTrait): (Float, String) = {
     val attackerMove: Move = allMoves(attackerMoveName)
 
     val effectiveness: Float =
@@ -95,7 +94,9 @@ object Info {
       else if (noEffect(attackerMove.moveType).contains(defender.pokemonType)) 0f
       else 1f
 
-    (attackerMove.damage * effectiveness, s"You used $attackerMoveName! ${getEffectiveString(effectiveness)}")
+    val effectiveText = s"${if (defender.isInstanceOf[AllyPokemon]) "The enemy " else ""}$attackerName used $attackerMoveName! ${getEffectiveString(effectiveness)}"
+
+    (attackerMove.damage * effectiveness, effectiveText)
   }
 
   private def getEffectiveString(effectiveness: Float): String = {

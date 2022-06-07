@@ -1,10 +1,9 @@
-package com.myGames.Screens.Pokemon
+package com.myGames.ScreensScala
 
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.{ Gdx, Input, InputAdapter, ScreenAdapter }
-import com.myGames.PokemonInfoScala.{ Info, Player, GameSave }
+import com.myGames.PokemonInfoScala.{ GameSave, Info, Player }
 import com.myGames.Screens.MainGame
-import com.myGames.ScreensScala.StatsScreen
 
 class PokemonScreen() extends ScreenAdapter {
   private var game: MainGame = null

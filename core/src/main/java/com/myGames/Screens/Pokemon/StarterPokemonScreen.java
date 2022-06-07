@@ -6,6 +6,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
+import com.myGames.ScreensScala.PokemonScreen;
 
 public class StarterPokemonScreen extends ScreenAdapter
 {

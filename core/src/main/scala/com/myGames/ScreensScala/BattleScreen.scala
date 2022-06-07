@@ -1,4 +1,4 @@
-package com.myGames.Screens.Pokemon
+package com.myGames.ScreensScala
 
 import com.badlogic.gdx.graphics.g2d.{ BitmapFont, TextureAtlas }
 import com.badlogic.gdx.graphics.{ Color, GL20, Texture }
@@ -13,7 +13,51 @@ import com.myGames.Screens.MainGame
 import scala.collection.mutable.ArrayBuffer
 
 class BattleScreen(val mainGame: MainGame, val pokemonScreen: PokemonScreen) extends ScreenAdapter {
-  private val stage: Stage = new Stage()
+  private val stage: Stage = new Stage
+
+  private lazy val skin = createSkin
+
+  private lazy val endBattle = (ally: AllyPokemon) => new Timer.Task {
+    override def run(): Unit = {
+      mainGame.setScreen(pokemonScreen)
+      GameSave.saveGame(ally)
+    }
+  }
+
+  private lazy val allyTurn = (battleDescriptionLabel: Label) => new Timer.Task {
+    override def run(): Unit =
+      battleDescriptionLabel.setText("It's your turn")
+  }
+
+  private lazy val enemyTurn = (battleDescriptionLabel: Label) => new Timer.Task {
+    override def run(): Unit =
+      battleDescriptionLabel.setText("It's the enemy turn!")
+  }
+
+  private lazy val enemyAttack = (
+    enemy: Pokemon,
+    ally: AllyPokemon,
+    allyHealthBar: ProgressBar,
+    battleDescriptionLabel: Label,
+    moveButtons: List[TextButton]
+  ) => new Timer.Task {
+    override def run(): Unit = {
+      val attackMove = enemy.attack
+      val (remainingHealth, effectiveText) = attackOpponent(enemy.name, attackMove.name, ally, allyHealthBar)
+      if (remainingHealth <= 0) {
+        allyHealthBar.setWidth(0)
+        battleDescriptionLabel.setText("You died!")
+        Timer.schedule(endBattle(ally), 2)
+      }
+      else {
+        allyHealthBar.setWidth(remainingHealth)
+        setColorStatus(allyHealthBar)
+        battleDescriptionLabel.setText(effectiveText)
+        Timer.schedule(allyTurn(battleDescriptionLabel), 2)
+        toggleMoveButtons(moveButtons, isDisabled = false)
+      }
+    }
+  }
 
   override def show(): Unit = {
     createBattle()
@@ -30,7 +74,6 @@ class BattleScreen(val mainGame: MainGame, val pokemonScreen: PokemonScreen) ext
     val playerPokemon: ArrayBuffer[AllyPokemon] = Player.pokemonBag
     val enemyPokemon: Pokemon = Info.getRandomEnemyPokemon
 
-    val skin: Skin = createSkin
     val font: BitmapFont = createFont(3f)
 
     val minWidth: Int = 500
@@ -51,8 +94,8 @@ class BattleScreen(val mainGame: MainGame, val pokemonScreen: PokemonScreen) ext
     val battleDescriptionLabel: Label = createBattleDescriptionLabel
 
     val moveNames: List[String] = playerPokemon.head.getMoveNames
-    val moveButtons: List[TextButton] = createMoveButtons(font, skin, moveNames)
-    addMoveButtonListeners(moveButtons, playerPokemon.head, enemyHealthBar, enemyPokemon, battleDescriptionLabel, minWidth)
+    val moveButtons: List[TextButton] = createMoveButtons(font, moveNames)
+    addMoveButtonListeners(moveButtons, allyHealthBar, playerPokemon.head, enemyHealthBar, enemyPokemon, battleDescriptionLabel)
     val moveButtonsTable: Table = createMoveButtonsTable(moveButtons)
     battleDescriptionLabel.setPosition(moveButtonsTable.getX, moveButtonsTable.getY + moveButtonsTable.getHeight + 10)
 
@@ -126,8 +169,7 @@ class BattleScreen(val mainGame: MainGame, val pokemonScreen: PokemonScreen) ext
 
   private def createMoveButtons(
     font: BitmapFont,
-    skin: Skin,
-    moveNames: List[String],
+    moveNames: List[String]
   ): List[TextButton] =
     moveNames.map { moveName =>
       val moveButtonStyle = new TextButton.TextButtonStyle
@@ -141,11 +183,11 @@ class BattleScreen(val mainGame: MainGame, val pokemonScreen: PokemonScreen) ext
 
   private def addMoveButtonListeners(
     moveButtons: List[TextButton],
+    allyHealthbar: ProgressBar,
     ally: AllyPokemon,
     enemyHealthBar: ProgressBar,
     enemy: Pokemon,
     battleDescriptionLabel: Label,
-    minWidth: Float
   ): Unit = {
     val (emptyMoves, actualMoves) = moveButtons.partition(_.getText == "-")
     emptyMoves.foreach { move =>
@@ -153,30 +195,23 @@ class BattleScreen(val mainGame: MainGame, val pokemonScreen: PokemonScreen) ext
       move.setDisabled(true)
     }
     actualMoves.foreach { move =>
-      move.addListener(new ChangeListener() {
+      move.addListener(new ChangeListener {
         override def changed(event: ChangeListener.ChangeEvent, actor: Actor): Unit = {
-          val (effectiveDmg, effectiveText) = Info.getEffectiveDamage(move.getText.toString, enemy)
-          val dmg = effectiveDmg * (minWidth / 100)
-          val remainingHealth = enemyHealthBar.getWidth - dmg
+          val (remainingHealth, effectiveText) = attackOpponent(ally.name, move.getText.toString, enemy, enemyHealthBar)
           if (remainingHealth <= 0) {
             enemyHealthBar.setWidth(0)
-            moveButtons.foreach(moveButton => {
-              moveButton.getStyle.down = null
-              moveButton.setDisabled(true)
-            })
+            toggleMoveButtons(moveButtons, isDisabled = true)
             battleDescriptionLabel.setText(s"You have defeated the enemy ${enemy.name}! You have gained 50 exp")
             ally.gainExp(50)
-            Timer.schedule(new Timer.Task() {
-              override def run(): Unit = {
-                mainGame.setScreen(pokemonScreen)
-                GameSave.saveGame(ally)
-              }
-            }, 2)
+            Timer.schedule(endBattle(ally), 2)
           }
           else {
             enemyHealthBar.setWidth(remainingHealth)
             setColorStatus(enemyHealthBar)
             battleDescriptionLabel.setText(effectiveText)
+            Timer.schedule(enemyTurn(battleDescriptionLabel), 1.5f)
+            toggleMoveButtons(moveButtons, isDisabled = true)
+            Timer.schedule(enemyAttack(enemy, ally, allyHealthbar, battleDescriptionLabel, moveButtons), 3)
           }
         }
     })}
@@ -190,6 +225,20 @@ class BattleScreen(val mainGame: MainGame, val pokemonScreen: PokemonScreen) ext
     bottom.foreach(table.add(_).expand.fill)
     table.setSize(MainGame.WORLD_WIDTH, MainGame.WORLD_HEIGHT / 3)
     table
+  }
+
+  private def attackOpponent[P <: PokemonTrait](pokemonName: String, moveName: String, opponent: P, opponentHealthBar: ProgressBar): (Float, String) = {
+    val (effectiveDmg, effectiveText) = Info.getEffectiveDamage(pokemonName, moveName, opponent)
+    val dmg = effectiveDmg * (opponentHealthBar.getStyle.background.getMinWidth / 100)
+    (opponentHealthBar.getWidth - dmg, effectiveText)
+  }
+
+  private def toggleMoveButtons(moveButtons: List[TextButton], isDisabled: Boolean): Unit = {
+    moveButtons.filterNot(_.getText == "-").foreach { moveButton =>
+      if (isDisabled) moveButton.getStyle.down = null
+      else moveButton.getStyle.down = skin.getDrawable("default-select-selection")
+      moveButton.setDisabled(isDisabled)
+    }
   }
 
   private def setColorStatus(healthBar: ProgressBar): Unit =
