@@ -24,9 +24,10 @@ class BattleScreen(val mainGame: MainGame, val pokemonScreen: PokemonScreen) ext
     }
   }
 
-  private lazy val allyTurn = (battleDescriptionLabel: Label) => new Timer.Task {
+  private lazy val allyTurn = (battleDescriptionLabel: Label, pokemonName: String, moveButtons: List[TextButton]) => new Timer.Task {
     override def run(): Unit =
-      battleDescriptionLabel.setText("It's your turn")
+      battleDescriptionLabel.setText(s"What will $pokemonName do?")
+      toggleMoveButtons(moveButtons, isDisabled = false)
   }
 
   private lazy val enemyTurn = (battleDescriptionLabel: Label) => new Timer.Task {
@@ -53,8 +54,7 @@ class BattleScreen(val mainGame: MainGame, val pokemonScreen: PokemonScreen) ext
         allyHealthBar.setWidth(remainingHealth)
         setColorStatus(allyHealthBar)
         battleDescriptionLabel.setText(effectiveText)
-        Timer.schedule(allyTurn(battleDescriptionLabel), 2)
-        toggleMoveButtons(moveButtons, isDisabled = false)
+        Timer.schedule(allyTurn(battleDescriptionLabel, ally.name, moveButtons), 2)
       }
     }
   }
@@ -91,7 +91,7 @@ class BattleScreen(val mainGame: MainGame, val pokemonScreen: PokemonScreen) ext
 
     val allyPokemonImage: Image = createAllyPokemonImage
 
-    val battleDescriptionLabel: Label = createBattleDescriptionLabel
+    val battleDescriptionLabel: Label = createBattleDescriptionLabel(playerPokemon.head.name)
 
     val moveNames: List[String] = playerPokemon.head.getMoveNames
     val moveButtons: List[TextButton] = createMoveButtons(font, moveNames)
@@ -154,10 +154,10 @@ class BattleScreen(val mainGame: MainGame, val pokemonScreen: PokemonScreen) ext
     pokemonNameLabel
   }
 
-  private def createBattleDescriptionLabel: Label = {
+  private def createBattleDescriptionLabel(pokemonName: String): Label = {
     val font = createFont(2f)
     val labelStyle = new Label.LabelStyle(font, Color.BLACK)
-    new Label("It's your turn!", labelStyle)
+    new Label(s"What will $pokemonName do?", labelStyle)
   }
 
   private def createAllyPokemonImage: Image = {
@@ -189,7 +189,7 @@ class BattleScreen(val mainGame: MainGame, val pokemonScreen: PokemonScreen) ext
     enemy: Pokemon,
     battleDescriptionLabel: Label,
   ): Unit = {
-    val (emptyMoves, actualMoves) = moveButtons.partition(_.getText == "-")
+    val (emptyMoves, actualMoves) = moveButtons.partition(_.getText.toString == "-")
     emptyMoves.foreach { move =>
       move.getStyle.down = null
       move.setDisabled(true)
@@ -234,7 +234,7 @@ class BattleScreen(val mainGame: MainGame, val pokemonScreen: PokemonScreen) ext
   }
 
   private def toggleMoveButtons(moveButtons: List[TextButton], isDisabled: Boolean): Unit = {
-    moveButtons.filterNot(_.getText == "-").foreach { moveButton =>
+    moveButtons.filterNot(_.getText.toString == "-").foreach { moveButton =>
       if (isDisabled) moveButton.getStyle.down = null
       else moveButton.getStyle.down = skin.getDrawable("default-select-selection")
       moveButton.setDisabled(isDisabled)
