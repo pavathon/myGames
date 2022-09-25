@@ -13,11 +13,11 @@ object GameSave {
   private val pathToSaveFile = "/home/mithrandir/bin/gameSaves/save.json"
 
   def saveGame(): Unit = {
-    val resultJson: String = allyPokemonToJson(Player.pokemonBag, Player.potionsBag)
+    val resultJson: String = saveToJson(Player.pokemonBag, Player.potionsBag)
     writeToSaveFile(resultJson)
   }
 
-  private def allyPokemonToJson(
+  private def saveToJson(
     pokemon: ArrayBuffer[AllyPokemon],
     potions: mutable.Map[Potions, Int]
   ): String = {
@@ -59,27 +59,35 @@ object GameSave {
     jsonObject.prettyPrint(jsonObject.getWriter.getWriter.toString)
   }
 
-  def loadSave: List[AllyPokemon] = {
+  def loadSave: (List[AllyPokemon], Map[Potions, Int]) = {
     val jsonReader = new JsonReader()
     val jsonString = readFromSaveFile
     val base = jsonReader.parse(jsonString)
-    val pokemonName = base.getString("name")
-    val pokemonType = Type.withName(base.getString("type"))
 
-    val moveSet: List[Option[Move]] = base.get("moveSet").iterator().asScala.map { moveObj =>
-      if (moveObj.isEmpty) None
-      else {
-        val moveName: String = moveObj.getString("name")
-        val moveType: Type.Value = Type.withName(moveObj.getString("type"))
-        val moveDamage: Int = moveObj.getInt("damage")
-        Some(Move(moveName, moveType, moveDamage))
-      }
+    val pokemon = base.get("pokemon").iterator().asScala.flatMap { pokemonObj =>
+      val name = pokemonObj.getString("name")
+      val pokeType = Type.withName(pokemonObj.getString("type"))
+
+
+      val moveSet: List[Option[Move]] = pokemonObj.get("moveSet").iterator().asScala.map { moveObj =>
+        if (moveObj.isEmpty) None
+        else {
+          val moveName: String = moveObj.getString("name")
+          val moveType: Type.Value = Type.withName(moveObj.getString("type"))
+          val moveDamage: Int = moveObj.getInt("damage")
+          Some(Move(moveName, moveType, moveDamage))
+        }
+      }.toList
+
+      val level = pokemonObj.getInt("level")
+      val exp = pokemonObj.getInt("experience")
+
+      List(new AllyPokemon(name, pokeType, moveSet, level, exp))
     }.toList
 
-    val level = base.getInt("level")
-    val exp = base.getInt("experience")
+    val potions = Map(Potions.Potion -> base.getInt("potion"))
 
-    List(new AllyPokemon(pokemonName, pokemonType, moveSet, level, exp))
+    (pokemon, potions)
   }
 
   private def readFromSaveFile: String = {

@@ -3,7 +3,7 @@ package com.myGames.ScreensScala
 import com.badlogic.gdx.audio.Sound
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.{ Gdx, Input, InputAdapter, ScreenAdapter }
-import com.myGames.PokemonInfoScala.{ Player, Potions }
+import com.myGames.PokemonInfoScala.{ GameSave, Player, Potions }
 import com.myGames.Screens.MainGame
 
 class ShopScreen(val game: MainGame, val pokemonScreen: PokemonScreen) extends ScreenAdapter {
@@ -12,7 +12,9 @@ class ShopScreen(val game: MainGame, val pokemonScreen: PokemonScreen) extends S
   override def show(): Unit = Gdx.input.setInputProcessor(new InputAdapter() {
     override def keyDown(keyCode: Int): Boolean = {
       keyCode match {
-        case Input.Keys.ESCAPE => game.setScreen(pokemonScreen)
+        case Input.Keys.ESCAPE =>
+          GameSave.saveGame()
+          game.setScreen(pokemonScreen)
         case Input.Keys.NUM_1 =>
           Player.addPotion(Potions.Potion)
           purchasePotionSound.play()

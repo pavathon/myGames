@@ -13,13 +13,19 @@ object Player {
     pokemonBag += allyPokemon
   }
 
-  def addAllPokemon(allyPokemon: List[AllyPokemon]): Unit = {
-    pokemonBag.appendAll(allyPokemon)
+  def loadPokemon(allyPokemon: List[AllyPokemon]): Unit = {
+    pokemonBag.clear()
+    pokemonBag ++= allyPokemon
   }
 
   def addPotion(potion: Potions): Unit = {
     if (potionsBag.contains(potion)) potionsBag += potion -> (potionsBag(potion) + 1)
     else potionsBag += potion -> 1
+  }
+
+  def loadPotions(potions: Map[Potions, Int]): Unit = {
+    potionsBag.clear()
+    potionsBag ++= potions
   }
 
   def usedPotion(potion: Potions): Unit = {

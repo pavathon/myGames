@@ -14,8 +14,9 @@ class PokemonScreen() extends ScreenAdapter {
   def this(game: MainGame) {
     this()
     this.game = game
-    val ally = GameSave.loadSave
-    Player.addAllPokemon(ally)
+    val (pokemon, potions) = GameSave.loadSave
+    Player.loadPokemon(pokemon)
+    Player.loadPotions(potions)
   }
 
   def this(game: MainGame, starterPokemonName: String) {
