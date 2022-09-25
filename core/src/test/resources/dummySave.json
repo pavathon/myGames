@@ -1,20 +1,25 @@
 {
-  "name": "Charmander",
-  "type": "Fire",
-  "moveSet": [
+  "pokemon": [
     {
-      "name": "Tackle",
-      "type": "Normal",
-      "damage": 10
-    },
-    {
-      "name": "Ember",
+      "name": "Charmander",
       "type": "Fire",
-      "damage": 20
-    },
-    {},
-    {}
+      "moveSet": [
+        {
+          "name": "Tackle",
+          "type": "Normal",
+          "damage": 10
+        },
+        {
+          "name": "Ember",
+          "type": "Fire",
+          "damage": 20
+        },
+        {},
+        {}
+      ],
+      "level": 1,
+      "experience": 0
+    }
   ],
-  "level": 1,
-  "experience": 0
+  "potion": 5
 }

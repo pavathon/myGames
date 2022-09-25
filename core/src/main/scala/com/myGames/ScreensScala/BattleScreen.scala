@@ -20,7 +20,7 @@ class BattleScreen(val mainGame: MainGame, val pokemonScreen: PokemonScreen) ext
   private lazy val endBattle = (ally: AllyPokemon) => new Timer.Task {
     override def run(): Unit = {
       mainGame.setScreen(pokemonScreen)
-      GameSave.saveGame(ally)
+      GameSave.saveGame()
     }
   }
 

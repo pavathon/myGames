@@ -1,47 +1,59 @@
 package com.myGames.PokemonInfoScala
 
 import com.badlogic.gdx.utils.{ Json, JsonReader, JsonWriter }
+import com.myGames.PokemonInfoScala.Potions.Potions
 
 import java.io.{ FileWriter, IOException, StringWriter }
 import scala.collection.JavaConverters.asScalaIteratorConverter
+import scala.collection.mutable
+import scala.collection.mutable.ArrayBuffer
 import scala.io.Source
 
 object GameSave {
   private val pathToSaveFile = "/home/mithrandir/bin/gameSaves/save.json"
 
-  def saveGame(ally: AllyPokemon): Unit = {
-    val resultJson: String = allyPokemonToJson(ally)
+  def saveGame(): Unit = {
+    val resultJson: String = allyPokemonToJson(Player.pokemonBag, Player.potionsBag)
     writeToSaveFile(resultJson)
   }
 
-  private def allyPokemonToJson(ally: AllyPokemon): String = {
+  private def allyPokemonToJson(
+    pokemon: ArrayBuffer[AllyPokemon],
+    potions: mutable.Map[Potions, Int]
+  ): String = {
     val jsonObject: Json = new Json()
     val jsonText = new StringWriter()
     val writer = new JsonWriter(jsonText)
     jsonObject.setOutputType(JsonWriter.OutputType.json)
     jsonObject.setWriter(writer)
     jsonObject.writeObjectStart()
-    jsonObject.writeValue("name", ally.name)
-    jsonObject.writeValue("type",ally.pokemonType.toString)
 
-    jsonObject.writeArrayStart("moveSet")
-    ally.moveSet.foreach(moveOpt => {
-      val moveJson: Json = new Json()
-      moveJson.setOutputType(JsonWriter.OutputType.json)
-      moveJson.setWriter(writer)
-      moveJson.writeObjectStart()
-      if (moveOpt.nonEmpty) {
-        val move = moveOpt.get
-        moveJson.writeValue("name", move.name)
-        moveJson.writeValue("type", move.moveType.toString)
-        moveJson.writeValue("damage", move.damage)
-      }
-      moveJson.writeObjectEnd()
-    })
-    jsonObject.writeArrayEnd()
+      jsonObject.writeArrayStart("pokemon")
+        jsonObject.writeObjectStart()
 
-    jsonObject.writeValue("level", ally.level)
-    jsonObject.writeValue("experience", ally.exp)
+          jsonObject.writeValue("name", pokemon.head.name)
+          jsonObject.writeValue("type",pokemon.head.pokemonType.toString)
+
+          jsonObject.writeArrayStart("moveSet")
+            pokemon.head.moveSet.foreach { moveOpt =>
+              jsonObject.writeObjectStart()
+                moveOpt.foreach { move =>
+                  jsonObject.writeValue("name", move.name)
+                  jsonObject.writeValue("type", move.moveType.toString)
+                  jsonObject.writeValue("damage", move.damage)
+                }
+              jsonObject.writeObjectEnd()
+            }
+          jsonObject.writeArrayEnd()
+
+          jsonObject.writeValue("level", pokemon.head.level)
+          jsonObject.writeValue("experience", pokemon.head.exp)
+
+        jsonObject.writeObjectEnd()
+      jsonObject.writeArrayEnd()
+
+      potions.get(Potions.Potion).foreach(jsonObject.writeValue("potion", _))
+
     jsonObject.writeObjectEnd()
 
     jsonObject.prettyPrint(jsonObject.getWriter.getWriter.toString)
