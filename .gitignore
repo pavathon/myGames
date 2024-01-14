@@ -25,7 +25,6 @@ www-test/
 /android/libs/x86_64/
 /android/gen/
 .idea/
-/core/assets/
 *.ipr
 *.iws
 *.iml
